@@ -1,0 +1,35 @@
+{
+  "name": "outlinebot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "backend": "nodemon index.js",
+    "frontend": "npm run start --prefix client",
+    "dev": "concurrently \"npm run backend\"  \"npm run start --prefix client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "actions-on-google": "^2.12.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dialogflow": "^0.13.0",
+    "dialogflow-fulfillment": "^0.6.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.17.1",
+    "google-oauth-jwt": "^0.2.0",
+    "mongoose": "^5.7.8",
+    "reactjs-popup": "^2.0.5"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "concurrently": "^5.0.0",
+    "nodemon": "^1.19.4",
+    "prettier": "^2.6.2",
+    "typescript": "^4.7.2"
+  }
+}
