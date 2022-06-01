@@ -53,9 +53,7 @@ const CartService = {
     return data;
   },
 
-  updateById: async (sessionId, updateData) => {
-    const customer = await CustomerService.findByData({ sessionId: sessionId })
-    const cart = await Cart.findOne({ customerId: customer._id });
+  updateById: async (cartId, updateData) => {
 
     const productList = updateData.productList.map((product) => {
       return {
@@ -64,7 +62,7 @@ const CartService = {
       }
     })
 
-    const data = await Cart.findOneAndUpdate({ _id: cart._id }, { productList: productList });
+    const data = await Cart.findOneAndUpdate({ _id: cartId }, { productList: productList });
     return data;
   },
 

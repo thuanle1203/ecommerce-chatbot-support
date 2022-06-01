@@ -153,7 +153,8 @@ class Chatbot extends Component {;
             if (this.props.history.location.pathname === '/shop' && !this.state.shopWelcomeSent) {
                 this.df_event_query('WELCOME_SHOP');
                 const customer = await axios.post('/api/customers', {
-                    sessionId: cookies.get('userID')
+                    sessionId: cookies.get('userID'),
+                    businessId: process.env.REACT_APP_BUSINESS_ID
                 });
                 this.setState({ shopWelcomeSent: true, showBot: true });
             }
@@ -205,16 +206,16 @@ class Chatbot extends Component {;
                 this.setState({ isOpenCart: !this.state.isOpenCart });
                 break;
             case 'search_by_name':
-                this.df_event_query('SEARCH_PRODUC_BY_NAME');
+                this.df_event_query('SEARCH_PRODUC_BY_NAME', { businessId: process.env.REACT_APP_BUSINESS_ID });
                 break;
             case 'shopping':
                 this.df_event_query('BUY_MORE');
                 break;
             case 'choose_category':
-                this.df_event_query('CHOOSE_CATEGORY');
+                this.df_event_query('CHOOSE_CATEGORY', { businessId: process.env.REACT_APP_BUSINESS_ID });
                 break;
             case 'shopping - choose category':
-                this.df_event_query('PRODUCT_BY_CATEGORY', { categoryName: text });
+                this.df_event_query('PRODUCT_BY_CATEGORY', { categoryName: text, businessId: process.env.REACT_APP_BUSINESS_ID });
                 break;
             case 'recommended_yes':
                 this.df_event_query('SHOW_RECOMMENDATIONS');

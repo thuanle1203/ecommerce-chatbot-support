@@ -3,7 +3,8 @@ const { Schema } = mongoose;
 
 const categorySchema = new Schema({
   name: String,
-  code: String
+  code: String,
+  bussinessId: String
 });
 
 mongoose.model('category', categorySchema);

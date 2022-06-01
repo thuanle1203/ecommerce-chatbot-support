@@ -16,6 +16,7 @@ module.exports = app => {
         const agent = new WebhookClient({ request: req, response: res });
 
         async function addToCart(agent) {
+
             const customer = await CustomerService.findByData({ sessionId: agent.parameters.sessionId });
 
             const cart = await CartService.findByData({ customerId: customer._id });
@@ -119,7 +120,7 @@ module.exports = app => {
         }
 
         async function getCategory(agent) {
-            const categoryList = await CategoryService.findAll();
+            const categoryList = await CategoryService.findAllByData({ bussinessId: agent.parameters.businessId });
 
             const quickRepliesCate = categoryList.map(category => {
                 return {
@@ -136,15 +137,13 @@ module.exports = app => {
         }
 
         async function getProductByCategory(agent) {
-            const productList = await ProductService.findByCategoryName(agent.parameters.categoryName);
+            const productList = await ProductService.findByCategoryName(agent.parameters.categoryName, agent.parameters.businessId);
 
             agent.add(new Payload(agent.UNSPECIFIED, { cards: productList }, {rawPayload: true, sendAsMessage: true}));
         }
 
         async function searchProductByName(agent) {
-            const productList = await ProductService.searchByName(agent.parameters.searchInput);
-
-            console.log(productList, agent.parameters.searchInput);
+            const productList = await ProductService.searchByName(agent.parameters.searchInput, agent.parameters.businessId);
 
             agent.add(new Payload(agent.UNSPECIFIED, { cards: productList }, {rawPayload: true, sendAsMessage: true}));
         }

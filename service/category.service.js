@@ -4,6 +4,10 @@ const Category = mongoose.model('category');
 
 const CategoryService = {
 
+  findAllByData: async (data) => {
+    return await Category.find(data);
+  },
+
   findAll: async () => {
     const data = await Category.find();
     return data;
@@ -23,7 +27,8 @@ const CategoryService = {
     // Create a Category
     const category = new Category({
       name: newCategory.name,
-      code: newCategory.code
+      code: newCategory.code,
+      bussinessId: newCategory.bussinessId
     });
   
     // Save Category in the database

@@ -15,10 +15,10 @@ const ProductService = {
     return data;
   },
 
-  findByCategoryName: async (cateName) => {
-    const category = await CategoryService.findByData({ name: cateName });
+  findByCategoryName: async (cateName, businessId) => {
+    const category = await CategoryService.findByData({ $and: [{ name: cateName }, { bussinessId: businessId } ] });
 
-    const products = await Product.find();
+    const products = await Product.find({ businessId: businessId });
 
     return products.filter(product => product.categoryId.includes(category._id));
   },
@@ -55,8 +55,8 @@ const ProductService = {
     return await Product.deleteMany({});
   },
 
-  searchByName: async (dataInput) => {
-    return await Product.find({ name: { $regex: dataInput, $options: 'i' } })
+  searchByName: async (dataInput, businessId) => {
+    return await Product.find({ $and: [{ name: { $regex: dataInput, $options: 'i' } }, { businessId: businessId }]})
   }
 }
 
