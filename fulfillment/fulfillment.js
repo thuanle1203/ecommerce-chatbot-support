@@ -17,13 +17,18 @@ module.exports = app => {
 
         async function addToCart(agent) {
 
-            const customer = await CustomerService.findByData({ sessionId: agent.parameters.sessionId });
+            const customer = await CustomerService.findByData({ 
+                $and: [
+                    { sessionId: agent.parameters.sessionId }, 
+                    { businessId: agent.parameters.businessId }
+                ]
+            });
 
             const cart = await CartService.findByData({ customerId: customer._id });
-            
+
             if (cart) {
                 let isHaveInCart = false;
-                const productList = cart.productList.map(product => {
+                const productList = cart.productList?.map(product => {
                     if (product.productId === agent.parameters.productId) {
                         isHaveInCart = true;
                         return { 
@@ -41,7 +46,8 @@ module.exports = app => {
                         quantity: agent.parameters.quantity
                     })
                 }
-                CartService.updateById(cart._id, { productList: productList });
+                
+                CartService.addProductToCart(cart._id, productList);
             } else {
                 const cart = await CartService.create({ 
                     customerId: customer._id, 
@@ -63,7 +69,7 @@ module.exports = app => {
                     },
                     {
                         text: 'Payment',
-                        payload: 'payment',
+                        payload: 'checkout',
                     },
                     {
                         text: 'View cart',
@@ -148,12 +154,41 @@ module.exports = app => {
             agent.add(new Payload(agent.UNSPECIFIED, { cards: productList }, {rawPayload: true, sendAsMessage: true}));
         }
 
+        async function updateAddressForUser(agent) {
+            const { sessionId, businessId } = agent.parameters;
+            const address = {
+                street: agent.parameters.street,
+                city: agent.parameters.city,
+                province: agent.parameters.province,
+                country: agent.parameters.country
+            }
+
+            const customer = await CustomerService.updateBySessionId(sessionId, businessId, { 
+                address: address 
+            })
+
+            agent.add(new Payload(agent.UNSPECIFIED, { 
+                text: 'Please choose payment method you want?',
+                quick_replies: [
+                    {
+                        text: 'Payment Online',
+                        payload: 'view_payment'
+                    },
+                    {
+                        text: 'COD',
+                        payload: 'cod'
+                    }
+                ] 
+            }, {rawPayload: true, sendAsMessage: true}))
+        }
+
         function fallback(agent) {
             agent.add(`I didn't understand`);
             agent.add(`I'm sorry, can you try again?`);
         }
 
         let intentMap = new Map();
+        intentMap.set('get-address', updateAddressForUser);
         intentMap.set('shopping - search by name', searchProductByName);
         intentMap.set('add to cart', addToCart);
         intentMap.set('shopping - choose category', getCategory);

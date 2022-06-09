@@ -10,13 +10,13 @@ module.exports = app => {
   // router.get("/published", cart.findAllPublished);
   
   // Retrieve a single Tutorial with id
-  router.get("/:sessionId", cart.findOne);
+  router.get("/:sessionId/:businessId", cart.findOne);
  
   // Create a new Tutorial
   router.post("/", cart.create);
 
   // Update a Tutorial with id
-  router.put("/:sessionId", cart.update);
+  router.put("/:sessionId/:businessId", cart.update);
 
   // Delete a Tutorial with id
   router.delete("/:id", cart.delete);

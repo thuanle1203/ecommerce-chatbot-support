@@ -4,7 +4,10 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
     productList: [],
     customerId: String,
-    businessId: String
+    paymentMethod: String,
+    amount: Number,
+	currency: String,
+    confirm: Boolean
 });
 
 mongoose.model('order', orderSchema);

@@ -1,63 +1,59 @@
 'use strict';
-const CartService = require('../service/cart.service');
-const CustomerService = require('../service/customer.service');
+const OrderService = require('../service/Order.service');
 
 exports.create = (req, res) => {
-  // Validate request
-  // if (!req.body.name) {
-  //   res.status(400).send({ message: "Content can not be empty!" });
-  //   return;
-  // }
+  const sessionId = req.params.sessionId;
+  const businessId = req.params.businessId;
 
-  CartService.create(req.body)
+  OrderService.create(sessionId, businessId, req.body)
     .then(data => {
       res.send(data);
     })
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Cart."
+          err.message || "Some error occurred while creating the Order."
       });
     });
 };
 
-// Retrieve all Carts from the database.
+// Retrieve all Orders from the database.
 exports.findAll = (req, res) => {
   // const email = req.query.email;
   // var condition = email ? { email: { $regex: new RegExp(email), $options: "i" } } : {};
 
-  CartService.findAll()
+  OrderService.findAll()
     .then(data => {
       res.send(data);
     })
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving Carts."
+          err.message || "Some error occurred while retrieving Orders."
       });
     });
 };
 
-// Find a single Cart with an id
+// Find a single Order with an id
 exports.findOne = (req, res) => {
 
   const sessionId = req.params.sessionId;
   const businessId = req.params.businessId;
 
-  CartService.findByData({ sessionId: sessionId, businessId: businessId })
+  OrderService.findByData({ sessionId: sessionId, businessId: businessId })
     .then(data => {
       if (!data)
-        res.status(404).send({ message: "Not found Cart with id " + sessionId });
+        res.status(404).send({ message: "Not found Order with id " + sessionId });
       else res.send(data);
     })
     .catch(err => {
       res
         .status(500)
-        .send({ message: "Error retrieving Cart with id=" + sessionId });
+        .send({ message: "Error retrieving Order with id=" + sessionId });
     });
 };
 
-// Update a Cart by the id in the request
+// Update a Order by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
@@ -68,70 +64,70 @@ exports.update = (req, res) => {
   const sessionId = req.params.sessionId;
   const businessId = req.params.businessId;
 
-  CartService.updateById(sessionId, businessId, req.body)
+  OrderService.updateById(sessionId, businessId, req.body)
     .then(data => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot update Cart with id=${sessionId}. Maybe Cart was not found!`
+          message: `Cannot update Order with id=${sessionId}. Maybe Order was not found!`
         });
-      } else res.send({ message: "Cart was updated successfully." });
+      } else res.send({ message: "Order was updated successfully." });
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error updating Cart with id=" + sessionId
+        message: "Error updating Order with id=" + sessionId
       });
     });
 };
 
-// Delete a Cart with the specified id in the request
+// Delete a Order with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  CartService.deleteById(id)
+  OrderService.deleteById(id)
     .then(data => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot delete Cart with id=${id}. Maybe Cart was not found!`
+          message: `Cannot delete Order with id=${id}. Maybe Order was not found!`
         });
       } else {
         res.send({
-          message: "Cart was deleted successfully!"
+          message: "Order was deleted successfully!"
         });
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Could not delete Cart with id=" + id
+        message: "Could not delete Order with id=" + id
       });
     });
 };
 
-// Delete all Carts from the database.
+// Delete all Orders from the database.
 exports.deleteAll = (req, res) => {
-  CartService.deleteAll()
+  OrderService.deleteAll()
     .then(data => {
       res.send({
-        message: `${data.deletedCount} Carts were deleted successfully!`
+        message: `${data.deletedCount} Orders were deleted successfully!`
       });
     })
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while removing all Carts."
+          err.message || "Some error occurred while removing all Orders."
       });
     });
 };
 
-// Find all published Carts
+// Find all published Orders
 // exports.findAllPublished = (req, res) => {
-//   Cart.find({ published: true })
+//   Order.find({ published: true })
 //     .then(data => {
 //       res.send(data);
 //     })
 //     .catch(err => {
 //       res.status(500).send({
 //         message:
-//           err.message || "Some error occurred while retrieving Carts."
+//           err.message || "Some error occurred while retrieving Orders."
 //       });
 //     });
 // };

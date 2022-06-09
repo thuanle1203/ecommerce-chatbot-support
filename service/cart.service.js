@@ -19,8 +19,10 @@ const CartService = {
   findByData: async (data) => {
     let customer;
 
-    if (data.sessionId) {
-      customer = await CustomerService.findByData({ sessionId: data.sessionId })
+    if (data.sessionId && data.businessId) {
+
+      customer = await CustomerService.findByData({ $and: [{ sessionId: data.sessionId  }, { businessId: data.businessId }]});
+
       const cart = await Cart.findOne({ customerId: customer._id });
 
       let fullCart = [];
@@ -30,14 +32,15 @@ const CartService = {
         fullProduct.quantity = item.quantity;
         fullCart.push(fullProduct);
       }
+
       return fullCart;
     } else {
       return await Cart.findOne(data);
     }
   },
 
-  addProductToCart: async (id, data) => {
-    return await Cart.updateOne({ _id: id }, { $push: { productList: data }})
+  addProductToCart: async (id, productList) => {
+    return await Cart.findOneAndUpdate({ _id: id }, { productList: productList })
   },
 
   create: async (newCart) => {
@@ -45,7 +48,7 @@ const CartService = {
     // Create a Cart
     const cart = new Cart({
       customerId: newCart.customerId,
-      productList: newCart.productList
+      productList: newCart.productList,
     });
   
     // Save Cart in the database
@@ -53,7 +56,7 @@ const CartService = {
     return data;
   },
 
-  updateById: async (cartId, updateData) => {
+   updateById: async (sessionId, businessId, updateData) => {
 
     const productList = updateData.productList.map((product) => {
       return {
@@ -62,12 +65,20 @@ const CartService = {
       }
     })
 
-    const data = await Cart.findOneAndUpdate({ _id: cartId }, { productList: productList });
+    const customer = await CustomerService.findByData({ $and: [{ sessionId: sessionId }, { businessId: businessId }]});
+
+    const data = await Cart.findOneAndUpdate({ customerId: customer._id }, { productList: productList });
     return data;
   },
 
   deleteById: async (id) => {
     return await Cart.findByIdAndRemove(id, { useFindAndModify: false });
+  },
+
+  deleteBySessionId: async (data) => {
+    const customer = await CustomerService.findByData({ $and: [{ sessionId: data.sessionId  }, { businessId: data.businessId }]});
+    
+    return await Cart.deleteOne({ customerId: customer._id }); 
   },
 
   deleteAll: async () => {

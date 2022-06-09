@@ -62,9 +62,10 @@ exports.update = (req, res) => {
     });
   }
 
-  const id = req.params.id;
+  const sessionId = req.params.sessionId;
+  const businessId = req.params.businessId;
 
-  CustomerService.updateById(id, req.body)
+  CustomerService.updateBySessionId(sessionId, businessId, req.body)
     .then(data => {
       if (!data) {
         res.status(404).send({

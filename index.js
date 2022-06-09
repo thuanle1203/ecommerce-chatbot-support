@@ -27,6 +27,7 @@ require('./models/Customer');
 require('./models/User');
 require('./models/Category');
 require('./models/Cart');
+require('./models/Order');
 
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -50,6 +51,7 @@ require('./routes/business.routes')(app);
 require('./routes/customer.routes')(app);
 require('./routes/category.routes')(app);
 require('./routes/cart.routes')(app);
+require('./routes/order.routes')(app);
 
 // if (process.env.NODE_ENV === 'production') {
 //     // js and css files

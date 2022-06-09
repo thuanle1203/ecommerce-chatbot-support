@@ -6,9 +6,11 @@ import Cookies from 'universal-cookie';
 import { v4 as uuid } from 'uuid';
 
 import Message from './Message';
+import orderApi from '../../api/orderApi';
 import Card from './Card';
 import Cart from './Cart/Cart'
 import QuickReplies from './QuickReplies';
+import StripeContainer from './Payment/StripeContainer';
 
 const cookies = new Cookies();
 
@@ -32,6 +34,7 @@ class Chatbot extends Component {;
             cartIsUpdated: false,
             clientToken: false,
             isOpenCart: false,
+            isOpenPayment: false,
             regenerateToken: 0,
         };
         if (cookies.get('userID') === undefined) {
@@ -60,7 +63,25 @@ class Chatbot extends Component {;
         await this.df_client_call(request);
     };
 
+    handlePaymentMethod = async (id = 0) => {
+        const data = await orderApi.post(id, cookies.get('userID'));
 
+        // Generate message with order infor
+
+        const says = {
+            speaks: 'bot',
+            msg: {
+                text : {
+                    text: 'Thank you for your order\nThis\'s your order infor: \nOrder ID: ' + data.data.order._id
+                }
+            }
+        }
+
+        this.setState({ messages: [...this.state.messages, says]});
+
+        return data
+
+    }
 
     async df_event_query(event, parameters) {
         const request = {
@@ -166,8 +187,11 @@ class Chatbot extends Component {;
     // }
         
     addProductToCard(productId) {
-        console.log('add btn click');
-        this.df_event_query('ADD_TO_CART', { productId: productId, sessionId: cookies.get('userID') });
+        this.df_event_query('ADD_TO_CART', { 
+            productId: productId, 
+            sessionId: cookies.get('userID'),
+            businessId: process.env.REACT_APP_BUSINESS_ID
+        });
     }
 
     resolveAfterXSeconds(x) {
@@ -201,9 +225,23 @@ class Chatbot extends Component {;
         event.preventDefault();
         event.stopPropagation();
 
+        console.log(payload);
+
         switch (payload) {
+            case 'cod': 
+                this.handlePaymentMethod()
+                break;
+            case 'checkout':
+                this.df_event_query('GET_ADDRESS', { 
+                    businessId: process.env.REACT_APP_BUSINESS_ID, 
+                    sessionId: cookies.get('userID')
+                });
+                break;
             case 'view_cart':
                 this.setState({ isOpenCart: !this.state.isOpenCart });
+                break;
+            case 'view_payment':
+                this.setState({ isOpenPayment: !this.state.isOpenPayment });
                 break;
             case 'search_by_name':
                 this.df_event_query('SEARCH_PRODUC_BY_NAME', { businessId: process.env.REACT_APP_BUSINESS_ID });
@@ -230,7 +268,6 @@ class Chatbot extends Component {;
     }
 
     renderCards(cards) {
-        console.log(cards);
         return cards?.map((card, i) => 
             <Card key={i} payload={card} handleAddClick={event => {
                 this.addProductToCard(card._id)
@@ -316,6 +353,9 @@ class Chatbot extends Component {;
                         <input style={{margin: 0, paddingLeft: '1%', paddingRight: '1%', width: '98%'}} ref={(input) => { this.talkInput = input; }} placeholder="type a message:"  onKeyPress={this._handleInputKeyPress} id="user_says" type="text" />
                     </div>
                     <Cart sessionId={cookies.get('userID')} isOpenCart={this.state.isOpenCart} />
+                    <StripeContainer 
+                        isOpenPayment={this.state.isOpenPayment} 
+                        handlePaymentMethod={this.handlePaymentMethod}/>
                 </div>
             );
         } else {

@@ -20,7 +20,7 @@ const CustomerService = {
 
   create: async (newCustomer) => {
 
-    const checkData = await Customer.findOne({ sessionId: newCustomer.sessionId });
+    const checkData = await Customer.findOne({ $and: [{ sessionId: newCustomer.sessionId }, { businessId: newCustomer.businessId }] });
 
     if (checkData) {
       return checkData;
@@ -40,8 +40,13 @@ const CustomerService = {
     return data;
   },
 
-  updateById: async (id, updateData) => {
-    const data = await Customer.findOneAndUpdate({ _id: id }, updateData);
+  updateBySessionId: async (sessionId, businessId, updateData) => {
+
+    
+    const data = await Customer.findOneAndUpdate({ $and: [
+      { sessionId: sessionId }, 
+      { businessId: businessId }]
+    }, updateData);
     return data;
   },
 

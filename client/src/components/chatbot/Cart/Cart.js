@@ -39,7 +39,7 @@ const Cart = (props) => {
         }
         setLoading(false)
     })()
-  }, [filters]);
+  }, [props.isOpenCart]);
 
   const onChangeProductQuantity =  (index, event) => {
     const value = event.target.value;
