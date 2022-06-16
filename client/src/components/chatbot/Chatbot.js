@@ -78,6 +78,7 @@ class Chatbot extends Component {;
         }
 
         this.setState({ messages: [...this.state.messages, says]});
+        this.setState({isOpenPayment: false});
 
         return data
 
@@ -171,7 +172,7 @@ class Chatbot extends Component {;
             
             
         this.props.history.listen(async () => {
-            if (this.props.history.location.pathname === '/shop' && !this.state.shopWelcomeSent) {
+            if (!this.state.shopWelcomeSent) {
                 this.df_event_query('WELCOME_SHOP');
                 const customer = await axios.post('/api/customers', {
                     sessionId: cookies.get('userID'),

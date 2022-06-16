@@ -5,9 +5,9 @@ const orderSchema = new Schema({
     productList: [],
     customerId: String,
     paymentMethod: String,
-    amount: Number,
 	currency: String,
-    confirm: Boolean
+    confirm: Boolean,
+    payment: Object
 });
 
 mongoose.model('order', orderSchema);

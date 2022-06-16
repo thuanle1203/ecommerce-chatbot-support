@@ -41,34 +41,18 @@ const OrderService = {
   },
 
   create: async (sessionId, businessId, newOrder) => {
-
-    let { id, paymentMethod } = newOrder
-
-    let confirm = false
+    let { paymentMethod } = newOrder
 
     const cart = await CartService.findByData({ businessId: businessId, sessionId: sessionId });
     const customer = await CustomerService.findByData({ businessId: businessId, sessionId: sessionId });
 
-    let amount = 0
-
-    cart.map((productInCart) => {
-      amount += productInCart.price * productInCart.quantity
-    })
-
-    console.log(newOrder);
+    let confirm = false
 
     try {
 
       // Make payment if it's choose payment method is prepayment
-      if (id != 0) {
-        const payment = await stripe.paymentIntents.create({
-          amount,
-          currency: "USD",
-          payment_method: id,
-          confirm: true
-        })
+      if (newOrder.status === 'COMPLETED') {
         confirm = true;
-        console.log(payment);
       }
       
       // Create a Order
@@ -81,9 +65,9 @@ const OrderService = {
           } 
         }),
         paymentMethod: paymentMethod,
+        payment: newOrder || null,
+        confirm: confirm,
         currency: 'USD',
-        amount: amount,
-        confirm: confirm
       });
     
       // Save Order in the database
@@ -95,7 +79,7 @@ const OrderService = {
 
       return {
         success: true,
-        order: data
+        order: order
       };
 
     } catch (error) {
