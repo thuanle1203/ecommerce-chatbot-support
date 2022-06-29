@@ -10,7 +10,9 @@ const orderSchema = new Schema({
     payment: Object,
     businessId: String,
     address: Object,
-    status: Boolean
+    status: Boolean,
+    createdAt: { type: Date, default: Date.now },
+    approveAt: { type: Date, default: null }
 });
 
 mongoose.model('order', orderSchema);

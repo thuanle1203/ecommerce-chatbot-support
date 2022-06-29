@@ -17,6 +17,8 @@ module.exports = app => {
   // Create a new Tutorial
   router.post("/:sessionId/:businessId", order.create);
 
+  router.put("/:id/approve", order.approveOrder);
+
   // Update a Tutorial with id
   router.put("/:id", order.update);
 

@@ -126,6 +126,28 @@ exports.update = (req, res) => {
     });
 };
 
+// Update a Order by the id in the request
+exports.approveOrder = (req, res) => {
+
+  const id = req.params.id;
+
+  OrderService.approveOrder(id)
+    .then(data => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot update Order with id=${id}. Maybe Order was not found!`
+        });
+      } else res.send({ message: "Order was updated successfully." });
+    })
+    .catch(err => {
+      console.log(err)
+
+      res.status(500).send({
+        message: "Error updating Order with id=" + id
+      });
+    });
+};
+
 // Delete a Order with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;

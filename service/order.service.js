@@ -5,6 +5,15 @@ const CustomerService = require('./customer.service');
 const ProductService = require('./product.service');
 const Order = mongoose.model('order');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_TEST)
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'thuanle321qn@gmail.com',
+    pass: 'swyzrirrcbjaweoq'
+  }
+});
 
 const OrderService = {
 
@@ -91,7 +100,7 @@ const OrderService = {
         confirm: confirm,
         currency: 'USD',
         businessId: businessId,
-        status: false
+        status: false,
       });
     
       // Save Order in the database
@@ -115,7 +124,7 @@ const OrderService = {
     }
   },
 
-   updateById: async (sessionId, businessId, updateData) => {
+  updateById: async (sessionId, businessId, updateData) => {
 
     const productList = updateData.productList.map((product) => {
       return {
@@ -127,6 +136,38 @@ const OrderService = {
     const customer = await CustomerService.findByData({ $and: [{ sessionId: sessionId }, { businessId: businessId }]});
 
     const data = await Order.findOneAndUpdate({ customerId: customer._id }, { productList: productList });
+    return data;
+  },
+
+  approveOrder: async (id) => {
+
+    const data = await Order.update({ _id: id }, { $set: { approveAt: new Date(), status: true } });
+
+    const order = await Order.findOne({ _id: id });
+
+    const customer = await CustomerService.findByData({ _id: order.customerId });
+
+    var mailOptions = {
+      from: 'thuanle321qn@gmail.com',
+      to: customer.infor.email,
+      subject: 'Confirm order',
+      attachments: [{
+        filename: 'logo.svg',
+        path: __dirname + '/logo.svg',
+        cid: 'logo'
+      }],
+      html: '<div style="background-color: aliceblue; display: flex; justify-content: center;"><div style="width: 35%; padding: 50px; background-color: white;"><div><h2>Order confirmed. Thank you for order!</h2></div></div></div>'
+    };
+
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
     return data;
   },
 
