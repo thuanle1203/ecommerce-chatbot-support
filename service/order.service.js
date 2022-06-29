@@ -13,9 +13,25 @@ const OrderService = {
     return data;
   },
 
-  findById: async () => {
-    const data = await Order.findOne({ _id: id });
-    return data;
+  findDetailById: async (id) => {
+    const order = await Order.findOne({ _id: id });
+
+    const customer = await CustomerService.findByData({ _id: order.customerId });
+
+    let fullProductList = [];
+
+    for (let item of order.productList) {
+      let fullProduct = await ProductService.findById(item.productId);
+      fullProduct.quantity = item.quantity;
+      fullProductList.push(fullProduct);
+    }
+
+    order.productList = fullProductList
+
+    return {
+      fullOrder: order,
+      customer: customer
+    };
   },
 
   findByData: async (data) => {
@@ -34,19 +50,24 @@ const OrderService = {
         fullProduct.quantity = item.quantity;
         fullOrder.push(fullProduct);
       }
+
       return fullOrder;
-    } else {
-      return await Order.findOne(data);
+    } else   {
+      return await Order.find(data);
     }
   },
 
   create: async (sessionId, businessId, newOrder) => {
     let { paymentMethod } = newOrder
 
+    console.log(newOrder)
+
     const cart = await CartService.findByData({ businessId: businessId, sessionId: sessionId });
     const customer = await CustomerService.findByData({ businessId: businessId, sessionId: sessionId });
 
     let confirm = false
+
+    const address = newOrder.currentAddress ? customer.address[newOrder.currentAddress] : customer.address[customer.address.length - 1] 
 
     try {
 
@@ -64,10 +85,13 @@ const OrderService = {
             quantity: Number(product.quantity)
           } 
         }),
+        address: address,
         paymentMethod: paymentMethod,
-        payment: newOrder || null,
+        payment: newOrder.payment || null,
         confirm: confirm,
         currency: 'USD',
+        businessId: businessId,
+        status: false
       });
     
       // Save Order in the database

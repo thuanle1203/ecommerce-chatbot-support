@@ -79,50 +79,67 @@ module.exports = app => {
             }, {rawPayload: true, sendAsMessage: true}))
         }
 
-        async function registration(agent) {
+        // async function registration(agent) {
 
-            const registration = new Registration({
-                name: agent.parameters.name,
-                address: agent.parameters.address,
-                phone: agent.parameters.phone,
-                email: agent.parameters.email,
-                dateSent: Date.now()
-            });
-            try{
-                let reg = await registration.save();
-                console.log(reg);
-            } catch (err){
-                console.log(err);
-            }
-        }
+        //     const registration = new Registration({
+        //         name: agent.parameters.name,
+        //         address: agent.parameters.address,
+        //         phone: agent.parameters.phone,
+        //         email: agent.parameters.email,
+        //         dateSent: Date.now()
+        //     });
+        //     try{
+        //         let reg = await registration.save();
+        //         console.log(reg);
+        //     } catch (err){
+        //         console.log(err);
+        //     }
+        // }
 
-        async function learn(agent) {
+        // async function learn(agent) {
 
-            Demand.findOne({'course': agent.parameters.courses}, function(err, course) {
-                if (course !== null ) {
-                    course.counter++;
-                    course.save();
-                } else {
-                    const demand = new Demand({course: agent.parameters.courses});
-                    demand.save();
-                }
-            });
-            let responseText = `You want to learn about ${agent.parameters.courses}. 
-                    Here is a link to all of my courses: https://www.udemy.com/user/jana-bergant`;
+        //     Demand.findOne({'course': agent.parameters.courses}, function(err, course) {
+        //         if (course !== null ) {
+        //             course.counter++;
+        //             course.save();
+        //         } else {
+        //             const demand = new Demand({course: agent.parameters.courses});
+        //             demand.save();
+        //         }
+        //     });
+        //     let responseText = `You want to learn about ${agent.parameters.courses}. 
+        //             Here is a link to all of my courses: https://www.udemy.com/user/jana-bergant`;
 
-            let coupon = await Coupon.findOne({'course': agent.parameters.courses});
-            if (coupon !== null ) {
-                responseText = `You want to learn about ${agent.parameters.courses}. 
-                Here is a link to the course: ${coupon.link}`;
-            }
+        //     let coupon = await Coupon.findOne({'course': agent.parameters.courses});
+        //     if (coupon !== null ) {
+        //         responseText = `You want to learn about ${agent.parameters.courses}. 
+        //         Here is a link to the course: ${coupon.link}`;
+        //     }
 
-            agent.add(responseText);
-        }
+        //     agent.add(responseText);
+        // }
 
         async function recommend(agent) {
             const productList = await ProductService.findAll();
 
             agent.add(new Payload(agent.UNSPECIFIED, { cards: productList }, {rawPayload: true, sendAsMessage: true}));
+        }
+
+        async function getAddresies(agent) {
+            const customer = await CustomerService.findByData({ $and: [{ sessionId: agent.parameters.sessionId }, { businessId: agent.parameters.businessId }] });
+            
+            const quickRepliesAddress = customer.address.map((ad, index) => {
+                return {
+                    text: `${ad.street}, ${ad.city}, ${ad.province}, ${ad.country}`,
+                    payload: 'set-address-for-order',
+                    code: index
+                }
+            })
+
+            agent.add(new Payload(agent.UNSPECIFIED, { 
+                text: 'Please choose address you want?',
+                quick_replies: quickRepliesAddress 
+            }, {rawPayload: true, sendAsMessage: true}));
         }
 
         async function getCategory(agent) {
@@ -164,7 +181,7 @@ module.exports = app => {
             }
 
             const customer = await CustomerService.updateBySessionId(sessionId, businessId, { 
-                address: address 
+                $push: { address: address } 
             })
 
             agent.add(new Payload(agent.UNSPECIFIED, { 
@@ -173,7 +190,7 @@ module.exports = app => {
                     {
                         text: 'Payment Online',
                         payload: 'view_payment'
-                    },
+                    }, 
                     {
                         text: 'COD',
                         payload: 'cod'
@@ -188,6 +205,7 @@ module.exports = app => {
         }
 
         let intentMap = new Map();
+        intentMap.set('get-current-address', getAddresies);
         intentMap.set('get-address', updateAddressForUser);
         intentMap.set('shopping - search by name', searchProductByName);
         intentMap.set('add to cart', addToCart);
@@ -196,8 +214,8 @@ module.exports = app => {
         intentMap.set('Default Welcome Intent', recommend);
         intentMap.set('recommend-product', recommend);
         intentMap.set('welcome - yes', recommend);
-        intentMap.set('learn-course', learn);
-        intentMap.set('recommend-course - yes', registration);
+        // intentMap.set('learn-course', learn);
+        // intentMap.set('recommend-course - yes', registration);
         intentMap.set('Default Fallback Intent', fallback);
 
         agent.handleRequest(intentMap);

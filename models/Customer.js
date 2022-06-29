@@ -2,10 +2,8 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const customerSchema = new Schema({
-  name: String,
-  email: String,
-  phone: String,
-  address: Object,
+  infor: Object,
+  address: [],
   sessionId: String,
   businessId: String,
 });

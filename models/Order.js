@@ -7,7 +7,10 @@ const orderSchema = new Schema({
     paymentMethod: String,
 	currency: String,
     confirm: Boolean,
-    payment: Object
+    payment: Object,
+    businessId: String,
+    address: Object,
+    status: Boolean
 });
 
 mongoose.model('order', orderSchema);

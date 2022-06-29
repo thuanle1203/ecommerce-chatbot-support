@@ -28,9 +28,7 @@ const CustomerService = {
     
     // Create a Customer
     const customer = new Customer({
-      name: newCustomer.name,
-      email: newCustomer.email,
-      phone: newCustomer.phone,
+      infor: newCustomer.infor,
       sessionId: newCustomer.sessionId,
       businessId: newCustomer.businessId,
     });

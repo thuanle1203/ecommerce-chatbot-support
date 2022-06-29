@@ -15,6 +15,11 @@ const ProductService = {
     return data;
   },
 
+  findByData: async (data) => {
+    const result = await Product.find(data);
+    return result;
+  },
+
   findByCategoryName: async (cateName, businessId) => {
     const category = await CategoryService.findByData({ $and: [{ name: cateName }, { bussinessId: businessId } ] });
 

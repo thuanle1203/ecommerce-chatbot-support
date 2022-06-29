@@ -8,7 +8,11 @@ module.exports = app => {
   
   // // Retrieve all published products
   // router.get("/published", products.findAllPublished);
-  
+
+  router.get("/:businessId/business", products.findByBusinessId);
+
+  router.get("/:id", products.findOne);
+
   // Retrieve a single Tutorial with id
   router.get("/:id", products.findOne);
  
