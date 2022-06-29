@@ -17,6 +17,53 @@ exports.create = (req, res) => {
     });
 };
 
+// Find a single Order with an id
+exports.findById = (req, res) => {
+
+  OrderService.findByData({ _id: req.params.id })
+    .then(data => {
+      if (!data)
+        res.status(404).send({ message: "Not found Order with id " + sessionId });
+      else res.send(data);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .send({ message: "Error retrieving Order with id=" + sessionId });
+    });
+};
+
+exports.findDetailById= (req, res) => {
+
+  OrderService.findDetailById(req.params.id)
+    .then(data => {
+      if (!data)
+        res.status(404).send({ message: "Not found Order with id " + sessionId });
+      else res.send(data);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .send({ message: "Error retrieving Order with id=" + sessionId });
+    });
+};
+
+exports.findByBusinessId = (req, res) => {
+
+  const businessId = req.params.businessId
+
+  OrderService.findByData({ businessId: businessId })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving Orders."
+      });
+    });
+};
+
 // Retrieve all Orders from the database.
 exports.findAll = (req, res) => {
   // const email = req.query.email;

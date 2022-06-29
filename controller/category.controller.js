@@ -37,6 +37,22 @@ exports.findAll = (req, res) => {
     });
 };
 
+exports.findByBusinessId = (req, res) => {
+  const businessId = req.params.businessId;
+
+  CategoryService.findAllByData({ bussinessId: businessId })
+    .then(data => {
+      if (!data)
+        res.status(404).send({ message: "Not found Category with id " + id });
+      else res.send(data);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .send({ message: "Error retrieving Category with id=" + id });
+    });
+};
+
 // Find a single Category with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;

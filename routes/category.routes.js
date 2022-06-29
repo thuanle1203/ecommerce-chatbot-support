@@ -10,6 +10,8 @@ module.exports = app => {
   // router.get("/published", category.findAllPublished);
   
   // Retrieve a single Tutorial with id
+  router.get("/:businessId/business", category.findByBusinessId);
+
   router.get("/:id", category.findOne);
  
   // Create a new Tutorial

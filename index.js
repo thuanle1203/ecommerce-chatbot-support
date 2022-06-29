@@ -52,6 +52,7 @@ require('./routes/customer.routes')(app);
 require('./routes/category.routes')(app);
 require('./routes/cart.routes')(app);
 require('./routes/order.routes')(app);
+require('./routes/auth.routes')(app);
 
 // if (process.env.NODE_ENV === 'production') {
 //     // js and css files

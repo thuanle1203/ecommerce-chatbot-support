@@ -54,6 +54,22 @@ exports.findOne = (req, res) => {
     });
 };
 
+exports.findByBusinessId = (req, res) => {
+  const businessId = req.params.businessId;
+
+  ProductService.findByData({ businessId: businessId })
+    .then(data => {
+      if (!data)
+        res.status(404).send({ message: "Not found Product with id " + businessId });
+      else res.send(data);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .send({ message: err });
+    });
+};
+
 // Update a Product by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {

@@ -1,12 +1,27 @@
 'use strict';
 const mongoose = require('mongoose');
 const User = mongoose.model('user');
+const Business = mongoose.model('business');
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
+  let businessCreated
   // Validate request
-  if (!req.body.name) {
-    res.status(400).send({ message: "Content can not be empty!" });
-    return;
+  if (!req.body.businessId) {
+    const business = new Business({
+      name: req.body.businessName,
+      // owner: req.body.ownerId
+    });
+    await business
+    .save(business)
+    .then(data => {
+      businessCreated = data
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the business."
+      });
+    });
   }
 
   // Create a user
@@ -18,6 +33,7 @@ exports.create = (req, res) => {
     phone: req.body.phone,
     email: req.body.email,
     registerDate: req.body.registerDate,
+    businessId: businessCreated._id
   });
 
   // Save user in the database

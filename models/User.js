@@ -8,7 +8,8 @@ const userSchema = new Schema({
     address: String,
     phone: String,
     email: String,
-    registerDate: Date
+    registerDate: Date,
+    businessId: String
 });
 
 mongoose.model('user', userSchema);
